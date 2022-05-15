@@ -20,10 +20,6 @@ variable "billing_account" {
   description = "Billing account for the projects/resources"
   type = string
 }
-variable "owners" {
-  description = "List of owners for the projects and folders"
-  type = list(string)
-}
 variable "quota_project" {
   description = "Quota project used for admin settings"
   type = string

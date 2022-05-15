@@ -3,9 +3,6 @@ module "tfx_folder" {
   source = "github.com/GoogleCloudPlatform/cloud-foundation-fabric//modules/folder"
   parent = var.organization
   name   = var.folder_name
-  iam = {
-    "roles/owner" = var.owners
-  }
 }
 
 module "tfx_proj" {
@@ -13,16 +10,24 @@ module "tfx_proj" {
   billing_account = var.billing_account
   name            = var.project_name
   parent          = module.tfx_folder.id
-  iam_additive = {
-    "roles/owner" = var.owners
-  }
-services = [
+  services = [
     "bigquery.googleapis.com",
     "dataflow.googleapis.com",
     "aiplatform.googleapis.com",
     "monitoring.googleapis.com",
     "composer.googleapis.com"
   ]
+  iam = {
+    "roles/composer.ServiceAgentV2Ext" = [
+      "serviceAccount:service-${module.tfx_proj.number}@cloudcomposer-accounts.iam.gserviceaccount.com"
+    ]
+  }
+
+  // Required for Cloud Composer
+  oslogin = false
+  policy_boolean = {
+    "constraints/compute.requireOsLogin" = false
+  }
 }
 
 // GCS bucket
@@ -95,10 +100,12 @@ resource "google_composer_environment" "tfx_composer" {
   name    = "tfx-composer"
   region  = var.region
   project = module.tfx_proj.project_id
+  depends_on = [
+    module.tfx_proj
+  ] # for permissions to the Composer service agent
   config {
     software_config {
-      image_version  = "composer-2-airflow-2"
-      python_version = "3"
+      image_version = "composer-2-airflow-2"
     }
     node_config {
       network         = module.tfx_vpc.self_link
@@ -108,13 +115,12 @@ resource "google_composer_environment" "tfx_composer" {
       # automatically, and TF will fail in subsequent calls to try to update
       # the secondary ranges in the VPC
       ip_allocation_policy {
-        use_ip_aliases           = true
-        services_ipv4_cidr_block = module.tfx_vpc.subnet_secondary_ranges["${var.region}/default"]["services"]
-        cluster_ipv4_cidr_block  = module.tfx_vpc.subnet_secondary_ranges["${var.region}/default"]["pods"]
+        services_secondary_range_name = "services"
+        cluster_secondary_range_name  = "pods"
       }
     }
     private_environment_config {
-      enable_private_endpoint = true
+      enable_private_endpoint = false
     }
   }
 }
