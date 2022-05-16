@@ -28,3 +28,8 @@ Check stats (compare train and eval for drift in distribution) and decide to
 normalize some features using the Transform component
 
 preprocessing_fn to dir accesible by Airflow (for Direct Runner), then to GCS
+
+FIXME: Cloud SQL instance for metadata db for the cloud (Sqlite does not 
+work with GCS)
+  * The metadata db needs to be reachable from Airflow and the rest of 
+    services that are used with Airflow

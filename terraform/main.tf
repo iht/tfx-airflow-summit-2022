@@ -15,20 +15,8 @@ module "tfx_proj" {
     "dataflow.googleapis.com",
     "autoscaling.googleapis.com",
     "aiplatform.googleapis.com",
-    "monitoring.googleapis.com",
-    "composer.googleapis.com"
+    "monitoring.googleapis.com"
   ]
-  iam = {
-    "roles/composer.ServiceAgentV2Ext" = [
-      "serviceAccount:service-${module.tfx_proj.number}@cloudcomposer-accounts.iam.gserviceaccount.com"
-    ]
-  }
-
-  // Required for Cloud Composer
-  oslogin = false
-  policy_boolean = {
-    "constraints/compute.requireOsLogin" = false
-  }
 }
 
 // GCS bucket
@@ -59,7 +47,8 @@ module "tfx_sa" {
       "roles/composer.admin",
       "roles/composer.worker",
       "roles/iam.serviceAccountUser",
-      "roles/cloudbuild.builds.editor"
+      "roles/cloudbuild.builds.editor",
+      "roles/cloudsql.editor"
     ]
   }
 }
@@ -97,34 +86,3 @@ module "tfx_nat" {
   name           = "default"
   router_network = module.tfx_vpc.self_link
 }
-
-// Cloud Composer instance
-# resource "google_composer_environment" "tfx_composer" {
-#   name    = "tfx-composer"
-#   region  = var.region
-#   project = module.tfx_proj.project_id
-#   depends_on = [
-#     module.tfx_proj
-#   ] # for permissions to the Composer service agent
-#   config {
-#     software_config {
-#       image_version = "composer-2-airflow-2"
-#     }
-#     environment_size = "ENVIRONMENT_SIZE_MEDIUM"
-#     node_config {
-#       network         = module.tfx_vpc.self_link
-#       subnetwork      = module.tfx_vpc.subnet_self_links["${var.region}/default"]
-#       service_account = module.tfx_sa.email
-#       # If cidr blocks are not set now, the ranges will be generated
-#       # automatically, and TF will fail in subsequent calls to try to update
-#       # the secondary ranges in the VPC
-#       ip_allocation_policy {
-#         services_secondary_range_name = "services"
-#         cluster_secondary_range_name  = "pods"
-#       }
-#     }
-#     private_environment_config {
-#       enable_private_endpoint = false
-#     }
-#   }
-# }
