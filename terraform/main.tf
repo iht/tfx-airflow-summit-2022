@@ -56,7 +56,9 @@ module "tfx_sa" {
       "roles/dataflow.admin",
       "roles/dataflow.worker",
       "roles/composer.admin",
-      "roles/iam.serviceAccountUser"
+      "roles/composer.worker",
+      "roles/iam.serviceAccountUser",
+      "roles/cloudbuild.builds.editor"
     ]
   }
 }
@@ -107,6 +109,7 @@ resource "google_composer_environment" "tfx_composer" {
     software_config {
       image_version = "composer-2-airflow-2"
     }
+    environment_size = "ENVIRONMENT_SIZE_MEDIUM"
     node_config {
       network         = module.tfx_vpc.self_link
       subnetwork      = module.tfx_vpc.subnet_self_links["${var.region}/default"]
