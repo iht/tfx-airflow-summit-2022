@@ -25,7 +25,7 @@ def parse_data(location: List[str],
                schema: Schema) -> tf.data.Dataset:
     return data_accessor.tf_dataset_factory(
         location,
-        tfxio.TensorFlowDatasetOptions(label_key="species"),
+        tfxio.TensorFlowDatasetOptions(batch_size=1024, label_key="species"),
         schema=schema).repeat()
 
 
