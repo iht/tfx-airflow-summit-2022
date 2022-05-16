@@ -86,7 +86,8 @@ BEAM_ARGS_CLOUD = ["--runner=DataflowRunner",
                    "--region=europe-west3",
                    "--service_account_email=tfx-sa@tfx-airflow-summit-2022.iam.gserviceaccount.com",
                    "--subnetwork=regions/europe-west3/subnetworks/default",
-                   "--no_use_public_ips"]
+                   "--no_use_public_ips",
+                   "--dataflow_service_options=enable_prime"]
 TRANSFORM_FILE_LOCATION_CLOUD = "gs://tfx-airflow-summit-2022/transforms/preprocessing_fn.py"
 
 DAG = main(query=QUERY,
