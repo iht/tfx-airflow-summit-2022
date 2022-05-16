@@ -23,3 +23,8 @@ Check output in /tmp
 find /tmp/tfx-airflow-summit-2022/BigQueryExampleGen/examples/
 
 Add statistics, schema and validator
+
+Check stats (compare train and eval for drift in distribution) and decide to 
+normalize some features using the Transform component
+
+preprocessing_fn to dir accesible by Airflow (for Direct Runner), then to GCS
