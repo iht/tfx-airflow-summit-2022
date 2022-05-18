@@ -29,7 +29,4 @@ normalize some features using the Transform component
 
 preprocessing_fn to dir accesible by Airflow (for Direct Runner), then to GCS
 
-FIXME: Cloud SQL instance for metadata db for the cloud (Sqlite does not 
-work with GCS)
-  * The metadata db needs to be reachable from Airflow and the rest of 
-    services that are used with Airflow
+metadata db: should be available to Airflow, but metadata is communicated through the components of TFX, the components don't need access to the metadata db
